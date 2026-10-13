@@ -1,6 +1,6 @@
 import express from 'express';
 import { createHmac, randomBytes, timingSafeEqual, createHash } from 'node:crypto';
-import { q, one, tx, ensureDb, getSettings, DEFAULT_SETTINGS } from './db.js';
+import { q, one, tx, ensureDb, getSettings, DEFAULT_SETTINGS, DATABASE_URL } from './db.js';
 
 const PROD = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
 
@@ -13,7 +13,7 @@ if (!ADMIN_PASSWORD && !PROD) {
 // Sessions must verify on every serverless instance, so the signing key can't be random per instance.
 // Derive it from the password when no SESSION_SECRET is given (changing the password logs everyone out).
 const SECRET = process.env.SESSION_SECRET
-  || createHash('sha256').update(`bb-session:${ADMIN_PASSWORD}:${process.env.DATABASE_URL}`).digest('hex');
+  || createHash('sha256').update(`bb-session:${ADMIN_PASSWORD}:${DATABASE_URL}`).digest('hex');
 
 export const app = express();
 app.disable('x-powered-by');
@@ -494,7 +494,7 @@ app.use('/api', (_req, _res, next) => next(new HttpError(404, 'Not found')));
 app.use((err, _req, res, _next) => {
   const status = err.status || (err.type === 'entity.too.large' ? 413 : 500);
   if (status >= 500) console.error(err);
-  res.status(status).json({ error: status >= 500 ? (err.message === 'DATABASE_URL is not set.' ? err.message : 'Something went wrong on our end.') : err.message });
+  res.status(status).json({ error: status >= 500 ? (String(err?.message).startsWith('DATABASE_URL is not set.') ? err.message : 'Something went wrong on our end.') : err.message });
 });
 
 export default app;

@@ -1,7 +1,13 @@
 import pg from 'pg';
 import { Pool as NeonPool, neonConfig } from '@neondatabase/serverless';
 
-const { DATABASE_URL } = process.env;
+// Accept the names Vercel's Neon/Postgres integrations commonly create, not just DATABASE_URL.
+function findDatabaseUrl(env = process.env) {
+  for (const k of ['DATABASE_URL', 'POSTGRES_URL', 'NEON_DATABASE_URL']) if (env[k]) return env[k];
+  const prefixed = Object.keys(env).find((k) => /_(DATABASE|POSTGRES)_URL$/.test(k) && env[k]);
+  return prefixed ? env[prefixed] : undefined;
+}
+export const DATABASE_URL = findDatabaseUrl();
 
 // Neon databases use Neon's serverless driver (Postgres over WebSockets, recommended for Vercel);
 // anything else — e.g. a local Postgres — uses node-postgres. Both share the same Pool API.
@@ -15,7 +21,11 @@ export const pool = DATABASE_URL
 pool?.on('error', (e) => console.error('Idle database client error:', e.message));
 
 function requirePool() {
-  if (!pool) throw new Error('DATABASE_URL is not set.');
+  if (!pool) {
+    // Names only (never values) so a misnamed or mis-scoped variable is easy to spot.
+    const seen = Object.keys(process.env).filter((k) => /DATABASE|POSTGRES|NEON|^PG/i.test(k));
+    throw new Error(`DATABASE_URL is not set. Database-related variables this deployment can see: ${seen.length ? seen.join(', ') : 'none'}.`);
+  }
   return pool;
 }
 

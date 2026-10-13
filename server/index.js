@@ -4,6 +4,7 @@ import express from 'express';
 import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import app from './app.js';
+import { DATABASE_URL } from './db.js';
 
 const PORT = Number(process.env.PORT || 3001);
 const DIST = resolve('dist');
@@ -13,5 +14,5 @@ if (process.env.NODE_ENV === 'production' && existsSync(DIST)) {
   app.get(/^(?!\/api\/).*/, (_req, res) => res.sendFile(join(DIST, 'index.html')));
 }
 
-if (!process.env.DATABASE_URL) console.warn('⚠️  DATABASE_URL is not set — add your Neon connection string to .env');
+if (!DATABASE_URL) console.warn('⚠️  DATABASE_URL is not set — add your Neon connection string to .env');
 app.listen(PORT, () => console.log(`🍪 Listening on http://localhost:${PORT}`));
