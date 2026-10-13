@@ -1,11 +1,18 @@
 import pg from 'pg';
+import { Pool as NeonPool, neonConfig } from '@neondatabase/serverless';
 
 const { DATABASE_URL } = process.env;
 
+// Neon databases use Neon's serverless driver (Postgres over WebSockets, recommended for Vercel);
+// anything else — e.g. a local Postgres — uses node-postgres. Both share the same Pool API.
+const isNeon = /\.neon\.tech\b/.test(DATABASE_URL || '');
+if (isNeon && !neonConfig.webSocketConstructor) neonConfig.webSocketConstructor = globalThis.WebSocket;
+
 // One small pool per server instance. On Vercel, warm instances reuse it between requests.
 export const pool = DATABASE_URL
-  ? new pg.Pool({ connectionString: DATABASE_URL, max: 5, idleTimeoutMillis: 10_000 })
+  ? new (isNeon ? NeonPool : pg.Pool)({ connectionString: DATABASE_URL, max: 5, idleTimeoutMillis: 10_000 })
   : null;
+pool?.on('error', (e) => console.error('Idle database client error:', e.message));
 
 export async function q(text, params = []) {
   if (!pool) throw new Error('DATABASE_URL is not set.');
