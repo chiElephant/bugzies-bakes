@@ -14,8 +14,13 @@ export const pool = DATABASE_URL
   : null;
 pool?.on('error', (e) => console.error('Idle database client error:', e.message));
 
-export async function q(text, params = []) {
+function requirePool() {
   if (!pool) throw new Error('DATABASE_URL is not set.');
+  return pool;
+}
+
+export async function q(text, params = []) {
+  requirePool();
   const { rows } = await pool.query(text, params);
   return rows;
 }
@@ -23,7 +28,7 @@ export const one = async (text, params) => (await q(text, params))[0];
 
 /** Run `fn(client)` inside a transaction. */
 export async function tx(fn) {
-  const client = await pool.connect();
+  const client = await requirePool().connect();
   try {
     await client.query('BEGIN');
     const out = await fn(client);
