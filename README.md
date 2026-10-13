@@ -45,15 +45,16 @@ The host needs a **persistent disk** for `data/` and `uploads/` (Render, Railway
 
 ## Photos
 
-Put photos in `public/images/` with these names, or upload them from the dashboard later:
+Site photos and the logo live in `public/images/`:
 
 | File | Used for |
 |---|---|
-| `hero.jpg` | Homepage hero (about square) |
-| `about.jpg` | About section (square) |
-| `chocolate-chip.jpg`, `brownies.jpg`, `funfetti.jpg`, `oatmeal-raisin.jpg`, `salted-caramel-blondies.jpg` | Menu items (landscape, 4:3) |
+| `logo.png` | Logo in the header, footer, homepage hero and dashboard (transparent background) |
+| `hero.jpg` | Homepage hero |
+| `about.jpg` | About section |
+| `chocolate-chip.jpg`, `brownies.jpg`, `funfetti.jpg`, `oatmeal-raisin.jpg`, `salted-caramel-blondies.jpg` | Menu items (4:3) |
 
-Until a photo exists, its spot shows a soft striped placeholder.
+To swap a photo, replace the file, or upload a new one from the dashboard (Menu & Pricing for items, Settings for the hero and about photos). If an image is missing, a soft placeholder shows instead.
 
 ## How the numbers work
 

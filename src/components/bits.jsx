@@ -118,7 +118,12 @@ export function Icon({ name, size = 24, stroke = 2, style, className }) {
   );
 }
 
+export const LOGO_SRC = '/images/logo.png';
+
 export function Logo({ name = "Bugzie's Bakes", size = 'md' }) {
+  const [broken, setBroken] = useState(false);
+  if (!broken) return <img src={LOGO_SRC} alt={name} className={`logo-img ${size}`} onError={() => setBroken(true)} />;
+  // Fallback: drawn text logo if the image is missing
   const [first, ...rest] = name.split(' ');
   const second = rest.join(' ');
   const h = size === 'lg' ? 120 : 54;

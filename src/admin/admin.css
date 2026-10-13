@@ -5,7 +5,7 @@
   position: sticky; top: 0; height: 100dvh; display: flex; flex-direction: column; gap: .3rem;
 }
 .admin-side .logo { margin: 0 .3rem 1rem; }
-.admin-side .logo svg { height: 48px; }
+.admin-side .logo svg, .admin-side .logo .logo-img { height: 52px; }
 .admin-nav a, .admin-side .side-btn {
   display: flex; align-items: center; gap: .7rem; padding: .65rem .8rem; border-radius: 14px; text-decoration: none;
   font-weight: 700; color: var(--brown-2); border: 0; background: transparent; cursor: pointer; width: 100%; text-align: left;
@@ -26,7 +26,7 @@
     display: flex; align-items: center; justify-content: space-between; padding: .4rem 1rem; background: var(--paper);
     border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 30;
   }
-  .admin-mobile-bar .logo svg { height: 40px; }
+  .admin-mobile-bar .logo svg, .admin-mobile-bar .logo .logo-img { height: 40px; }
   .admin-main { padding: 1.2rem 16px 4rem; }
 }
 

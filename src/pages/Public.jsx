@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../lib/store.jsx';
 import { api } from '../lib/api.js';
-import { Blob, Bursts, HeartDoodle, Icon, Photo } from '../components/bits.jsx';
+import { Blob, HeartDoodle, Icon, Logo, Photo } from '../components/bits.jsx';
 import {
   AboutSection, ContactCta, Features, HowItWorks, PopularTreats, ProductCard, SectionHead,
 } from '../components/Sections.jsx';
@@ -10,7 +10,6 @@ import {
 export function Home() {
   const { config } = useStore();
   const name = config?.business_name || "Bugzie's Bakes";
-  const [first, ...rest] = name.split(' ');
   return (
     <>
       <section className="hero">
@@ -18,11 +17,7 @@ export function Home() {
         <Blob color="var(--pink-soft)" variant={1} style={{ width: 260, height: 260, left: -130, bottom: -40 }} />
         <div className="wrap">
           <div className="hero-copy">
-            <h1 className="hero-title">
-              <Bursts style={{ position: 'absolute', left: '-14%', top: '30%' }} />
-              {first}<br />{rest.join(' ')}
-              <Bursts side="right" style={{ position: 'absolute', right: '-14%', top: '52%' }} />
-            </h1>
+            <h1 className="hero-title"><Logo name={name} size="hero" /></h1>
             <p className="tagline">{config?.tagline || 'Homemade treats. Made with heart.'}</p>
             <Icon name="heart" size={22} style={{ color: 'var(--pink)', fill: 'var(--pink)', margin: '0 auto' }} />
             <p className="lede">Freshly baked goodies for every occasion — because life's better with something sweet.</p>
