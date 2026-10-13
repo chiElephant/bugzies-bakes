@@ -94,7 +94,7 @@ function OrderCard({ o, onUpdate }) {
         <StatusPill status={o.status} />
         <span className={`pill plain ${o.paid ? 'on' : 'off'}`}>{o.paid ? 'Paid' : 'Unpaid'}</span>
         <span className="oc-when">{prettyDate(o.scheduled_date)} · {o.scheduled_time}</span>
-        <span className="muted" style={{ marginLeft: 'auto', fontSize: '.82rem' }}>Placed {new Date(o.created_at.replace(' ', 'T') + 'Z').toLocaleString()}</span>
+        <span className="muted" style={{ marginLeft: 'auto', fontSize: '.82rem' }}>Placed {new Date(o.created_at).toLocaleString()}</span>
       </div>
       <div className="oc-body">
         <div>

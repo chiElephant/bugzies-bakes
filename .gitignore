@@ -1,6 +1,7 @@
 node_modules
 dist
-data/
-uploads/
 .env
 *.log
+.vercel
+.env.local
+.neon

@@ -93,7 +93,7 @@ export function AboutSection({ full = false }) {
         <div className="wrap about">
           <div className="about-art">
             <Blob color="var(--mint-soft)" variant={2} style={{ inset: '-10%', width: '120%', height: '120%' }} />
-            <Photo src={config?.about_image} alt={`Baking at ${name}`} className="photo" />
+            <Photo src={config?.about_image || '/images/about.jpg'} alt={`Baking at ${name}`} className="photo" />
             <HeartDoodle size={44} style={{ top: '-4%', right: '4%' }} />
           </div>
           <div>

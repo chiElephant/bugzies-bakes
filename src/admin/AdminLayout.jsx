@@ -28,6 +28,15 @@ export default function AdminLayout() {
     api('/admin/counts').then(setCounts).catch(() => {});
   }, []);
   useEffect(() => { if (authed) refreshCounts(); }, [authed, pathname, refreshCounts]);
+
+  // First visit: adopt the baker's own time zone so "today" and lead times match their clock.
+  useEffect(() => {
+    if (!authed) return;
+    api('/admin/settings').then((s) => {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (!s.time_zone && tz) api('/admin/settings', { method: 'PUT', body: { time_zone: tz } });
+    }).catch(() => {});
+  }, [authed]);
   useEffect(() => setOpen(false), [pathname]);
 
   if (authed === null) return null;

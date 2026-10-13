@@ -7,6 +7,9 @@ import { AdminTop } from './AdminLayout.jsx';
 import { ImagePicker } from './Products.jsx';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const ZONES = (() => {
+  try { return Intl.supportedValuesOf('timeZone'); } catch { return ['America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC']; }
+})();
 
 export function Messages() {
   const { refreshCounts } = useOutletContext();
@@ -25,7 +28,7 @@ export function Messages() {
             <strong>{m.name}</strong>
             <a href={`mailto:${m.email}?subject=${encodeURIComponent("Re: your message")}`}>{m.email}</a>
             {!m.handled && <span className="pill st-new">New</span>}
-            <span className="muted" style={{ marginLeft: 'auto', fontSize: '.82rem' }}>{new Date(m.created_at.replace(' ', 'T') + 'Z').toLocaleString()}</span>
+            <span className="muted" style={{ marginLeft: 'auto', fontSize: '.82rem' }}>{new Date(m.created_at).toLocaleString()}</span>
           </div>
           <p style={{ whiteSpace: 'pre-wrap', margin: '.6rem 0' }}>{m.body}</p>
           <div style={{ display: 'flex', gap: '.5rem' }}>
@@ -42,7 +45,9 @@ export default function Settings() {
   const [s, setS] = useState(null);
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
-  useEffect(() => { api('/admin/settings').then(setS); }, []);
+  useEffect(() => {
+    api('/admin/settings').then((d) => setS({ ...d, time_zone: d.time_zone || Intl.DateTimeFormat().resolvedOptions().timeZone || '' }));
+  }, []);
   if (!s) return <p className="muted">Loading…</p>;
 
   const set = (k) => (e) => setS({ ...s, [k]: e.target.value });
@@ -107,6 +112,14 @@ export default function Settings() {
           <div className="grid-2">
             <label className="field"><span>Business name</span><input value={s.business_name} onChange={set('business_name')} /></label>
             <label className="field"><span>Tagline</span><input value={s.tagline} onChange={set('tagline')} /></label>
+            <label className="field">
+              <span>Time zone</span>
+              <select value={s.time_zone} onChange={set('time_zone')}>
+                {!s.time_zone && <option value="">Choose…</option>}
+                {ZONES.map((z) => <option key={z} value={z}>{z.replace(/_/g, ' ')}</option>)}
+              </select>
+              <small>Used for “today”, order lead times and daily sales.</small>
+            </label>
             <label className="field"><span>Contact email</span><input type="email" value={s.contact_email} onChange={set('contact_email')} /></label>
             <label className="field"><span>Instagram URL</span><input value={s.instagram_url} onChange={set('instagram_url')} placeholder="https://instagram.com/…" /></label>
             <label className="field"><span>Facebook URL</span><input value={s.facebook_url} onChange={set('facebook_url')} placeholder="https://facebook.com/…" /></label>

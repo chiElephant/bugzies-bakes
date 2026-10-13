@@ -25,7 +25,7 @@ export function Home() {
           </div>
           <div className="hero-art">
             <Blob color="var(--mint-soft)" style={{ inset: '-6% -8% -4% 0', width: '110%', height: '110%' }} />
-            <Photo src={config?.hero_image} alt={`Fresh-baked treats from ${name}`} className="photo" />
+            <Photo src={config?.hero_image || '/images/hero.jpg'} alt={`Fresh-baked treats from ${name}`} className="photo" />
             <HeartDoodle size={56} style={{ top: '6%', right: '18%' }} />
           </div>
         </div>

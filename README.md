@@ -16,32 +16,32 @@ Payment happens offline (cash, Venmo, Zelle and so on). The checkout shows a "ho
 
 ## Running it
 
-Requires **Node 22.13+**. The database is Node's built-in SQLite, so there's nothing else to install.
+The site runs on **Vercel**, and the data (orders, menu, coupons, expenses and uploaded photos) lives in **Neon Postgres**. Tables and the starter menu are created automatically the first time the app connects.
+
+### Local development
+
+Requires **Node 22.9+**.
 
 ```bash
 npm install
-npm run dev          # shop on http://localhost:5173, dashboard at /admin
+cp .env.example .env    # fill in DATABASE_URL and ADMIN_PASSWORD
+npm run dev             # shop on http://localhost:5173, dashboard at /admin
 ```
 
-Set your dashboard password by copying `.env.example` to `.env` and filling in `ADMIN_PASSWORD`. If you skip that, the dev server makes up a password at startup and prints it in the terminal.
+If you've linked the Neon CLI (`neon link`), it writes `DATABASE_URL` to `.env.local`, and the app reads that too. Use a Neon dev branch locally so test orders stay out of production.
 
-### Production
+### Deploying to Vercel
 
-```bash
-npm run build
-npm start                 # reads .env; serves on $PORT (default 3001)
-```
+1. Import the GitHub repo in Vercel. `vercel.json` already sets the build (Vite → `dist/`) and routes `/api/*` to the Express function in `api/index.js`.
+2. Under **Settings → Environment Variables**, add:
 
 | Env var | What it does |
 |---|---|
-| `ADMIN_PASSWORD` | Dashboard password. **Required** in production. |
-| `SESSION_SECRET` | Keeps you logged in across restarts. If it isn't set, a restart logs you out. |
-| `PORT` | Port to serve on (default `3001`). |
-| `DB_PATH` | SQLite file (default `data/bakes.db`). |
-| `UPLOAD_DIR` | Where uploaded photos are stored (default `uploads/`). |
-| `TZ` | Your time zone, e.g. `America/Chicago`. Order dates and lead times use it. |
+| `DATABASE_URL` | Your Neon connection string. Use the **pooled** one (host contains `-pooler`). **Required.** |
+| `ADMIN_PASSWORD` | Password for `/admin`. **Required.** |
+| `SESSION_SECRET` | Optional. Any long random string. Without it, the login key is derived from the password, so changing the password logs you out. |
 
-The host needs a **persistent disk** for `data/` and `uploads/` (Render, Railway, Fly.io and any VPS all work).
+3. Deploy, then open `/admin` and log in. The dashboard sets the shop's time zone from your browser on first visit, and you can change it under **Settings**. Vercel's servers run on UTC, so the time zone is what makes "today", lead times and daily sales use your local clock.
 
 ## Photos
 
@@ -54,7 +54,7 @@ Site photos and the logo live in `public/images/`:
 | `about.jpg` | About section |
 | `chocolate-chip.jpg`, `brownies.jpg`, `funfetti.jpg`, `oatmeal-raisin.jpg`, `salted-caramel-blondies.jpg` | Menu items (4:3) |
 
-To swap a photo, replace the file, or upload a new one from the dashboard (Menu & Pricing for items, Settings for the hero and about photos). If an image is missing, a soft placeholder shows instead.
+To swap a photo, replace the file, or upload a new one from the dashboard (Menu & Pricing for items, Settings for the hero and about photos). Uploads are shrunk in the browser and stored in Neon. If an image is missing, a soft placeholder shows instead.
 
 ## How the numbers work
 
