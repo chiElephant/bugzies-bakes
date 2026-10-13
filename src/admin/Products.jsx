@@ -9,12 +9,37 @@ const blank = { name: '', description: '', category: 'Cookies', unit_label: 'eac
 
 export function marginClass(m) { return m >= 0.6 ? 'margin-good' : m >= 0.4 ? 'margin-low' : 'margin-bad'; }
 
-export async function uploadImage(file) {
-  if (file.size > 6 * 1024 * 1024) throw new Error('Please choose an image under 6 MB.');
-  const data = await new Promise((res, rej) => {
+const MAX_SIDE = 1600;
+
+/** Shrink big photos in the browser before upload (keeps requests well under the server limit). */
+async function prepareImage(file) {
+  const asDataUrl = (blob) => new Promise((res, rej) => {
     const r = new FileReader();
-    r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file);
+    r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob);
   });
+  if (file.type === 'image/gif') {
+    if (file.size > 2.5 * 1024 * 1024) throw new Error('Please choose a GIF under 2.5 MB.');
+    return asDataUrl(file);
+  }
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error("Couldn't read that image.")); i.src = url; });
+    const scale = Math.min(1, MAX_SIDE / Math.max(img.naturalWidth, img.naturalHeight));
+    if (scale === 1 && file.size < 1.5 * 1024 * 1024) return asDataUrl(file);
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(img.naturalWidth * scale);
+    canvas.height = Math.round(img.naturalHeight * scale);
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    // PNGs may have transparency (logos), so keep them PNG; everything else becomes JPEG
+    return file.type === 'image/png' ? canvas.toDataURL('image/png') : canvas.toDataURL('image/jpeg', 0.85);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+export async function uploadImage(file) {
+  if (file.size > 25 * 1024 * 1024) throw new Error('Please choose an image under 25 MB.');
+  const data = await prepareImage(file);
   return (await api('/admin/upload', { method: 'POST', body: { data } })).url;
 }
 
